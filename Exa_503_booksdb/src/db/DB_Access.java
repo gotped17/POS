@@ -171,6 +171,14 @@ public class DB_Access {
         }
         return books;
     }
+    
+    public void disconnect(){
+        try {
+            db.disconnect();
+        } catch (SQLException ex) {
+            System.out.println("An error occured while disconnecting from the database");
+        }
+    }
     public static void main(String[] args) {
         try {
             DB_Access db = DB_Access.getInstance();

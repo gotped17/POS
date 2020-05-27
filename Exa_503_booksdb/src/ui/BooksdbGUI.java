@@ -5,21 +5,43 @@
  */
 package ui;
 
+import beans.Book;
+import db.DB_Access;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  *
  * @author Gottl
  */
 public class BooksdbGUI extends javax.swing.JFrame {
-
-    /**
-     * Creates new form BooksdbGUI
-     */
+    
+    private final DB_Access dba;
+    
     public BooksdbGUI() {
         initComponents();
+        dba = DB_Access.getInstance();
+        addWindowListener(new ClosingListener());
+        customInit();
     }
-
+    
+     private class ClosingListener extends WindowAdapter {
+        @Override
+        public void windowClosing(WindowEvent evt) {
+            System.out.println("Disconnecting from database!");
+            dba.disconnect();
+            System.out.println("Closing window");
+            evt.getWindow().dispose();
+        }
+     }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -46,6 +68,7 @@ public class BooksdbGUI extends javax.swing.JFrame {
         epDetails = new javax.swing.JEditorPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(800, 600));
 
         plSearch.setBorder(javax.swing.BorderFactory.createTitledBorder("Suchen"));
         plSearch.setLayout(new java.awt.GridBagLayout());
@@ -62,7 +85,8 @@ public class BooksdbGUI extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 28);
         plSearch.add(lbGenre, gridBagConstraints);
 
-        cbVerlag.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cbVerlag.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "select" }));
+        cbVerlag.setPreferredSize(new java.awt.Dimension(130, 22));
         cbVerlag.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 onVerlagSelected(evt);
@@ -72,7 +96,8 @@ public class BooksdbGUI extends javax.swing.JFrame {
         gridBagConstraints.ipadx = 70;
         plSearch.add(cbVerlag, gridBagConstraints);
 
-        cbGenre.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cbGenre.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "select" }));
+        cbGenre.setPreferredSize(new java.awt.Dimension(130, 22));
         cbGenre.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 onGenreSelected(evt);
@@ -133,19 +158,24 @@ public class BooksdbGUI extends javax.swing.JFrame {
 
         getContentPane().add(plSearch, java.awt.BorderLayout.PAGE_START);
 
-        liBooks.setBorder(javax.swing.BorderFactory.createTitledBorder("Bücher"));
-        liBooks.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
+        jScrollPane1.setBorder(javax.swing.BorderFactory.createTitledBorder("Bücher"));
+        jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+        jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        jScrollPane1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+
+        liBooks.setBorder(null);
         liBooks.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        liBooks.setPreferredSize(new java.awt.Dimension(200, 113));
+        liBooks.setAutoscrolls(false);
+        liBooks.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        liBooks.setPreferredSize(new java.awt.Dimension(280, 113));
         jScrollPane1.setViewportView(liBooks);
 
         getContentPane().add(jScrollPane1, java.awt.BorderLayout.LINE_START);
 
-        epDetails.setBorder(javax.swing.BorderFactory.createTitledBorder("Buchdetails"));
+        jScrollPane2.setBorder(javax.swing.BorderFactory.createTitledBorder("Buchdetails"));
+
+        epDetails.setBorder(null);
+        epDetails.setPreferredSize(new java.awt.Dimension(400, 39));
         jScrollPane2.setViewportView(epDetails);
 
         getContentPane().add(jScrollPane2, java.awt.BorderLayout.CENTER);
@@ -153,6 +183,26 @@ public class BooksdbGUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void customInit(){
+        try {
+            List<String> publishers = dba.getPublisher().values().stream().collect(Collectors.toList());
+            List<String> genres = dba.getGenres().values().stream().collect(Collectors.toList());
+            for (String publisher : publishers) {
+                cbVerlag.addItem(publisher);
+            }
+            for (String genre : genres) {
+                cbGenre.addItem(genre);
+            }
+            List<Book> books = dba.getBooks();
+            String[] booktitles = new String[books.size()];
+            for (int i = 0; i < books.size(); i++) {
+                booktitles[i] = books.get(i).getTitle();
+            }
+            liBooks.setListData(booktitles);
+        } catch (SQLException ex) {
+            Logger.getLogger(BooksdbGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     private void onVerlagSelected(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onVerlagSelected
         // TODO add your handling code here:
     }//GEN-LAST:event_onVerlagSelected
