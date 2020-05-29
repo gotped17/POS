@@ -11,28 +11,38 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author Gottl
  */
 public class BooksdbGUI extends javax.swing.JFrame {
-    
+
     private final DB_Access dba;
-    
+    private Map<Integer, String> allPublisher;
+    private Map<Integer, String> allGenres;
+    private List<String> allAuthors;
+    private Map<Integer, Integer> bookGenres;
+    private boolean firstUpdate = true;
+
     public BooksdbGUI() {
         initComponents();
         dba = DB_Access.getInstance();
         addWindowListener(new ClosingListener());
         customInit();
     }
-    
-     private class ClosingListener extends WindowAdapter {
+
+    private class ClosingListener extends WindowAdapter {
+
         @Override
         public void windowClosing(WindowEvent evt) {
             System.out.println("Disconnecting from database!");
@@ -40,8 +50,8 @@ public class BooksdbGUI extends javax.swing.JFrame {
             System.out.println("Closing window");
             evt.getWindow().dispose();
         }
-     }
-    
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -86,10 +96,11 @@ public class BooksdbGUI extends javax.swing.JFrame {
         plSearch.add(lbGenre, gridBagConstraints);
 
         cbVerlag.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "select" }));
+        cbVerlag.setActionCommand("publisher");
         cbVerlag.setPreferredSize(new java.awt.Dimension(130, 22));
         cbVerlag.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                onVerlagSelected(evt);
+                onComboboxChanged(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -97,10 +108,11 @@ public class BooksdbGUI extends javax.swing.JFrame {
         plSearch.add(cbVerlag, gridBagConstraints);
 
         cbGenre.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "select" }));
+        cbGenre.setActionCommand("genre");
         cbGenre.setPreferredSize(new java.awt.Dimension(130, 22));
         cbGenre.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                onGenreSelected(evt);
+                onComboboxChanged(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -113,7 +125,7 @@ public class BooksdbGUI extends javax.swing.JFrame {
         tfSearch.setToolTipText("");
         tfSearch.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                onTextSearch(evt);
+                onFilterChanged(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -125,9 +137,10 @@ public class BooksdbGUI extends javax.swing.JFrame {
 
         bgFilter.add(rbBook);
         rbBook.setText("Buch");
+        rbBook.setActionCommand("book");
         rbBook.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                onFilterSelected(evt);
+                onFilterChanged(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -138,15 +151,16 @@ public class BooksdbGUI extends javax.swing.JFrame {
 
         bgFilter.add(rbAuthor);
         rbAuthor.setText("Autor");
+        rbAuthor.setActionCommand("author");
         rbAuthor.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                onFilterSelected(evt);
+                onFilterChanged(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(17, 0, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(17, 17, 0, 0);
         plSearch.add(rbAuthor, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
@@ -168,6 +182,11 @@ public class BooksdbGUI extends javax.swing.JFrame {
         liBooks.setAutoscrolls(false);
         liBooks.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         liBooks.setPreferredSize(new java.awt.Dimension(280, 113));
+        liBooks.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                onSelectionChanged(evt);
+            }
+        });
         jScrollPane1.setViewportView(liBooks);
 
         getContentPane().add(jScrollPane1, java.awt.BorderLayout.LINE_START);
@@ -183,13 +202,18 @@ public class BooksdbGUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void customInit(){
+    private void customInit() {
         try {
-            List<String> publishers = dba.getPublisher().values().stream().collect(Collectors.toList());
-            List<String> genres = dba.getGenres().values().stream().collect(Collectors.toList());
+            allPublisher = dba.getPublisher();
+            allGenres = dba.getGenres();
+            allAuthors = dba.getAuthors();
+            bookGenres = dba.getBookGenres();
+            List<String> publishers = allPublisher.values().stream().collect(Collectors.toList());
+
             for (String publisher : publishers) {
                 cbVerlag.addItem(publisher);
             }
+            List<String> genres = allGenres.values().stream().collect(Collectors.toList());
             for (String genre : genres) {
                 cbGenre.addItem(genre);
             }
@@ -199,26 +223,136 @@ public class BooksdbGUI extends javax.swing.JFrame {
                 booktitles[i] = books.get(i).getTitle();
             }
             liBooks.setListData(booktitles);
+
         } catch (SQLException ex) {
             Logger.getLogger(BooksdbGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    private void onVerlagSelected(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onVerlagSelected
-        // TODO add your handling code here:
-    }//GEN-LAST:event_onVerlagSelected
+    private void onComboboxChanged(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onComboboxChanged
+        if (evt.getActionCommand().equals("publisher")) {
 
-    private void onGenreSelected(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onGenreSelected
-        // TODO add your handling code here:
-    }//GEN-LAST:event_onGenreSelected
+            String publisher = cbVerlag.getSelectedItem().toString();
+            int publisherId = 0;
+            for (int key : allPublisher.keySet()) {
+                if (allPublisher.get(key).equals(publisher)) {
+                    publisherId = key;
+                    break;
+                }
+            }
 
-    private void onTextSearch(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onTextSearch
-        // TODO add your handling code here:
-    }//GEN-LAST:event_onTextSearch
+            if (!publisher.equals("select")) {
+                updateCombobox(publisherId);
+            } else {
+                updateCombobox();
+            }
+        }
 
-    private void onFilterSelected(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onFilterSelected
-        // TODO add your handling code here:
-    }//GEN-LAST:event_onFilterSelected
-    
+        updateList();
+
+
+    }//GEN-LAST:event_onComboboxChanged
+
+    private void updateList() {
+
+        String publisher = cbVerlag.getSelectedItem() == null ? "select" : cbVerlag.getSelectedItem().toString();
+        String genre = cbGenre.getSelectedItem() == null ? "select" : cbGenre.getSelectedItem().toString();
+        String query = "SELECT DISTINCT * FROM books b INNER JOIN book_genres bg ON b.book_id = bg.book_id "
+                + "INNER JOIN genres g ON bg.genre_id = g.genre_id";
+
+        if (!genre.equals("select") || !publisher.equals("select")) {
+            query += " WHERE ";
+            if (!publisher.equals("select")) {
+                int publisherId = 0;
+                for (int key : allPublisher.keySet()) {
+                    if (allPublisher.get(key).equals(publisher)) {
+                        publisherId = key;
+                        break;
+                    }
+                }
+                query += "b.publisher_id = " + publisherId;
+            }
+            if (!genre.equals("select") && !publisher.equals("select")) {
+                query += " AND ";
+                int genreId = 0;
+                for (int key : allGenres.keySet()) {
+                    if (allGenres.get(key).equals(genre)) {
+                        genreId = key;
+                        break;
+                    }
+                }
+                query += "bg.genre_id = " + genreId;
+
+            } else if (!genre.equals("select")) {
+                int genreId = 0;
+                for (int key : allGenres.keySet()) {
+                    if (allGenres.get(key).equals(genre)) {
+                        genreId = key;
+                        break;
+                    }
+                }
+                query += "bg.genre_id = " + genreId;
+            }
+
+            System.out.println(query);
+            try {
+                List<Book> filteredBooks = dba.getBooksCustom(query);
+                Set<String> bookTitlesSet = new HashSet<>();
+                String[] booktitles = new String[filteredBooks.size()];
+                int cnt = 0;
+                for (Book book : filteredBooks) {
+                    bookTitlesSet.add(book.getTitle());
+                }
+                for (String booktitle : bookTitlesSet) {
+                    System.out.println(booktitle);
+                    booktitles[cnt] = booktitle;
+                    cnt++;
+                }
+                liBooks.setListData(booktitles);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                System.out.println("Error with custom retrieve");
+            } catch (RuntimeException ex) {
+                JOptionPane.showMessageDialog(this, "Dieser Verlag hat kein Buch mit dem Genre " + genre);
+            }
+
+        }
+    }
+
+    private void updateCombobox(int publisherId) {
+
+        try {
+            List<String> genres = dba.getGenresOfPublisher(publisherId);
+            cbGenre.removeAllItems();
+            cbGenre.addItem("select");
+            Collections.sort(genres);
+            for (String genre : genres) {
+                cbGenre.addItem(genre);
+            }
+
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            System.out.println("An error occured while retrieving the genres of a publisher");
+        }
+    }
+
+    private void updateCombobox() {
+        cbGenre.removeAllItems();
+        cbGenre.addItem("select");
+        List<String> genres = allGenres.values().stream().collect(Collectors.toList());
+        Collections.sort(genres);
+        for (String genre : genres) {
+            cbGenre.addItem(genre);
+        }
+    }
+
+    private void onFilterChanged(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onFilterChanged
+        JOptionPane.showMessageDialog(this, "Not implemented yet");
+    }//GEN-LAST:event_onFilterChanged
+
+    private void onSelectionChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_onSelectionChanged
+        
+    }//GEN-LAST:event_onSelectionChanged
+
     /**
      * @param args the command line arguments
      */
@@ -254,7 +388,7 @@ public class BooksdbGUI extends javax.swing.JFrame {
         });
     }
 
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup bgFilter;
     private javax.swing.JComboBox<String> cbGenre;
