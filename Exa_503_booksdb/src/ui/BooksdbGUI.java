@@ -31,12 +31,12 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 
-
 /**
  *
  * @author Gottl
  */
 public class BooksdbGUI extends javax.swing.JFrame {
+
     private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private final DB_Access dba;
     private Map<Integer, String> allPublisher;
@@ -45,6 +45,8 @@ public class BooksdbGUI extends javax.swing.JFrame {
     private List<Book> allBooks;
     private Map<Integer, Integer> bookGenres;
     private boolean firstUpdate = true;
+    private int filteredPublisherId;
+    private int filteredGenreId;
 
     public BooksdbGUI() {
         initComponents();
@@ -57,9 +59,9 @@ public class BooksdbGUI extends javax.swing.JFrame {
 
         @Override
         public void windowClosing(WindowEvent evt) {
-            System.out.println("Disconnecting from database!");
+            System.out.println("Disconnecting from the database");
             dba.disconnect();
-            System.out.println("Closing window");
+            System.out.println("Finishing the Application.\nBye Bye!");
             evt.getWindow().dispose();
         }
     }
@@ -84,10 +86,10 @@ public class BooksdbGUI extends javax.swing.JFrame {
         rbBook = new javax.swing.JRadioButton();
         rbAuthor = new javax.swing.JRadioButton();
         lbFill = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        liBooks = new javax.swing.JList<>();
         jScrollPane2 = new javax.swing.JScrollPane();
         epDetails = new javax.swing.JEditorPane();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        liBooks = new javax.swing.JList<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new java.awt.Dimension(800, 600));
@@ -184,22 +186,6 @@ public class BooksdbGUI extends javax.swing.JFrame {
 
         getContentPane().add(plSearch, java.awt.BorderLayout.PAGE_START);
 
-        jScrollPane1.setBorder(javax.swing.BorderFactory.createTitledBorder("Bücher"));
-        jScrollPane1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-
-        liBooks.setBorder(null);
-        liBooks.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        liBooks.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        liBooks.setPreferredSize(new java.awt.Dimension(280, 113));
-        liBooks.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                onSelectionChanged(evt);
-            }
-        });
-        jScrollPane1.setViewportView(liBooks);
-
-        getContentPane().add(jScrollPane1, java.awt.BorderLayout.LINE_START);
-
         jScrollPane2.setBorder(javax.swing.BorderFactory.createTitledBorder("Buchdetails"));
 
         epDetails.setBorder(null);
@@ -208,6 +194,22 @@ public class BooksdbGUI extends javax.swing.JFrame {
         jScrollPane2.setViewportView(epDetails);
 
         getContentPane().add(jScrollPane2, java.awt.BorderLayout.CENTER);
+
+        jScrollPane3.setPreferredSize(new java.awt.Dimension(260, 146));
+
+        liBooks.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        liBooks.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                onSelectionChanged(evt);
+            }
+        });
+        jScrollPane3.setViewportView(liBooks);
+
+        getContentPane().add(jScrollPane3, java.awt.BorderLayout.LINE_START);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -276,6 +278,7 @@ public class BooksdbGUI extends javax.swing.JFrame {
                 for (int key : allPublisher.keySet()) {
                     if (allPublisher.get(key).equals(publisher)) {
                         publisherId = key;
+                        filteredPublisherId = key;
                         break;
                     }
                 }
@@ -287,6 +290,7 @@ public class BooksdbGUI extends javax.swing.JFrame {
                 for (int key : allGenres.keySet()) {
                     if (allGenres.get(key).equals(genre)) {
                         genreId = key;
+                        filteredGenreId = key;
                         break;
                     }
                 }
@@ -319,7 +323,7 @@ public class BooksdbGUI extends javax.swing.JFrame {
                 ex.printStackTrace();
                 System.out.println("Error with custom retrieve");
             } catch (RuntimeException ex) {
-                JOptionPane.showMessageDialog(this, "Dieser Verlag hat kein Buch mit dem Genre " + genre);
+                JOptionPane.showMessageDialog(this, "Zu dem Genre " + genre + " wurden keine Bücher gefunden");
             }
 
         }
@@ -359,29 +363,29 @@ public class BooksdbGUI extends javax.swing.JFrame {
     private void onSelectionChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_onSelectionChanged
         String selectedString = liBooks.getSelectedValue();
         Book selectedBook = allBooks.get(0);
-        for (Book book: allBooks) {
-            if(book.getTitle().equals(selectedString)){
+        for (Book book : allBooks) {
+            if (book.getTitle().equals(selectedString)) {
                 selectedBook = book;
             }
         }
         updateEditorPane(selectedBook);
     }//GEN-LAST:event_onSelectionChanged
 
-    private void updateEditorPane(Book selectedBook){
+    private void updateEditorPane(Book selectedBook) {
         try {
             File template = Paths.get(System.getProperty("user.dir"), "src", "res", "bookDetails.html").toFile();
             BufferedReader br = new BufferedReader(new FileReader(template));
             String templateString = "";
             String line = "";
             String authors = "";
-            for(String author : selectedBook.getAuthors()){
-                if(authors != ""){
+            for (String author : selectedBook.getAuthors()) {
+                if (authors != "") {
                     authors += "<br>";
                 }
-                authors += author +"";
+                authors += author + "";
             }
             System.out.println(authors);
-            while((line=br.readLine()) != null){
+            while ((line = br.readLine()) != null) {
                 templateString += line;
             }
             String content = MessageFormat.format(templateString,
@@ -398,6 +402,7 @@ public class BooksdbGUI extends javax.swing.JFrame {
             Logger.getLogger(BooksdbGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     /**
      * @param args the command line arguments
      */
@@ -439,8 +444,8 @@ public class BooksdbGUI extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> cbGenre;
     private javax.swing.JComboBox<String> cbVerlag;
     private javax.swing.JEditorPane epDetails;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JLabel lbFill;
     private javax.swing.JLabel lbGenre;
     private javax.swing.JLabel lbVerlag;
