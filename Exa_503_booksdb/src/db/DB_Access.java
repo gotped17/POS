@@ -91,7 +91,7 @@ public class DB_Access {
         while (results.next()) {
             authors.add(String.format("%s, %s %s", results.getString("last_name"),
                     results.getString("first_name"),
-                    results.getString("middle_name")));
+                    results.getString("middle_name") == null ? "" : results.getString("middle_name")));
         }
         return authors;
 

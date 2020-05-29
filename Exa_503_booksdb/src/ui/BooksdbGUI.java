@@ -6,11 +6,21 @@
 package ui;
 
 import beans.Book;
+import beans.Selection;
 import db.DB_Access;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.text.MessageFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -21,16 +31,18 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 
+
 /**
  *
  * @author Gottl
  */
 public class BooksdbGUI extends javax.swing.JFrame {
-
+    private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private final DB_Access dba;
     private Map<Integer, String> allPublisher;
     private Map<Integer, String> allGenres;
     private List<String> allAuthors;
+    private List<Book> allBooks;
     private Map<Integer, Integer> bookGenres;
     private boolean firstUpdate = true;
 
@@ -173,13 +185,10 @@ public class BooksdbGUI extends javax.swing.JFrame {
         getContentPane().add(plSearch, java.awt.BorderLayout.PAGE_START);
 
         jScrollPane1.setBorder(javax.swing.BorderFactory.createTitledBorder("Bücher"));
-        jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-        jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         jScrollPane1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
         liBooks.setBorder(null);
         liBooks.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        liBooks.setAutoscrolls(false);
         liBooks.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         liBooks.setPreferredSize(new java.awt.Dimension(280, 113));
         liBooks.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
@@ -194,6 +203,7 @@ public class BooksdbGUI extends javax.swing.JFrame {
         jScrollPane2.setBorder(javax.swing.BorderFactory.createTitledBorder("Buchdetails"));
 
         epDetails.setBorder(null);
+        epDetails.setContentType("text/html"); // NOI18N
         epDetails.setPreferredSize(new java.awt.Dimension(400, 39));
         jScrollPane2.setViewportView(epDetails);
 
@@ -217,10 +227,10 @@ public class BooksdbGUI extends javax.swing.JFrame {
             for (String genre : genres) {
                 cbGenre.addItem(genre);
             }
-            List<Book> books = dba.getBooks();
-            String[] booktitles = new String[books.size()];
-            for (int i = 0; i < books.size(); i++) {
-                booktitles[i] = books.get(i).getTitle();
+            allBooks = dba.getBooks();
+            String[] booktitles = new String[allBooks.size()];
+            for (int i = 0; i < allBooks.size(); i++) {
+                booktitles[i] = allBooks.get(i).getTitle();
             }
             liBooks.setListData(booktitles);
 
@@ -292,8 +302,6 @@ public class BooksdbGUI extends javax.swing.JFrame {
                 }
                 query += "bg.genre_id = " + genreId;
             }
-
-            System.out.println(query);
             try {
                 List<Book> filteredBooks = dba.getBooksCustom(query);
                 Set<String> bookTitlesSet = new HashSet<>();
@@ -303,7 +311,6 @@ public class BooksdbGUI extends javax.swing.JFrame {
                     bookTitlesSet.add(book.getTitle());
                 }
                 for (String booktitle : bookTitlesSet) {
-                    System.out.println(booktitle);
                     booktitles[cnt] = booktitle;
                     cnt++;
                 }
@@ -350,9 +357,47 @@ public class BooksdbGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_onFilterChanged
 
     private void onSelectionChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_onSelectionChanged
-        
+        String selectedString = liBooks.getSelectedValue();
+        Book selectedBook = allBooks.get(0);
+        for (Book book: allBooks) {
+            if(book.getTitle().equals(selectedString)){
+                selectedBook = book;
+            }
+        }
+        updateEditorPane(selectedBook);
     }//GEN-LAST:event_onSelectionChanged
 
+    private void updateEditorPane(Book selectedBook){
+        try {
+            File template = Paths.get(System.getProperty("user.dir"), "src", "res", "bookDetails.html").toFile();
+            BufferedReader br = new BufferedReader(new FileReader(template));
+            String templateString = "";
+            String line = "";
+            String authors = "";
+            for(String author : selectedBook.getAuthors()){
+                if(authors != ""){
+                    authors += "<br>";
+                }
+                authors += author +"";
+            }
+            System.out.println(authors);
+            while((line=br.readLine()) != null){
+                templateString += line;
+            }
+            String content = MessageFormat.format(templateString,
+                    selectedBook.getTitle(),
+                    authors,
+                    selectedBook.getIsbn() == null ? "-" : selectedBook.getIsbn(),
+                    selectedBook.getTotalPages() == 0 ? "-" : selectedBook.getTotalPages(),
+                    selectedBook.getGenre() == null ? "-" : selectedBook.getGenre(),
+                    selectedBook.getRating() == 0 ? "-" : selectedBook.getRating(),
+                    selectedBook.getPublishedDate() == null ? "-" : selectedBook.getPublishedDate().format(DTF),
+                    selectedBook.getPublisher() == null ? "-" : selectedBook.getPublisher());
+            epDetails.setText(content);
+        } catch (IOException ex) {
+            Logger.getLogger(BooksdbGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     /**
      * @param args the command line arguments
      */
