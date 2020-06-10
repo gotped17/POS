@@ -88,7 +88,6 @@ public class EmployeeGUI extends javax.swing.JFrame {
         plFilter.add(jCheckBox1, gridBagConstraints);
 
         jTextField1.setText("Fr 01-01-2000");
-        jTextField1.setActionCommand("bd_text");
         jTextField1.setEnabled(false);
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

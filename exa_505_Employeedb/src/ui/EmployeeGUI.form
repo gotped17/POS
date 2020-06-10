@@ -98,7 +98,6 @@
         <Component class="javax.swing.JTextField" name="jTextField1">
           <Properties>
             <Property name="text" type="java.lang.String" value="Fr 01-01-2000"/>
-            <Property name="actionCommand" type="java.lang.String" value="bd_text"/>
             <Property name="enabled" type="boolean" value="false"/>
           </Properties>
           <Events>
