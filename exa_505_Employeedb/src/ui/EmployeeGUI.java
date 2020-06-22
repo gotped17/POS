@@ -16,6 +16,7 @@ public class EmployeeGUI extends javax.swing.JFrame {
      */
     public EmployeeGUI() {
         initComponents();
+        
     }
 
     /**
@@ -30,16 +31,16 @@ public class EmployeeGUI extends javax.swing.JFrame {
 
         plFilter = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
-        jCheckBox1 = new javax.swing.JCheckBox();
-        jTextField1 = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
-        jCheckBox2 = new javax.swing.JCheckBox();
-        jCheckBox3 = new javax.swing.JCheckBox();
+        cxDept = new javax.swing.JComboBox<>();
+        cbBirthDate = new javax.swing.JCheckBox();
+        tfBirth = new javax.swing.JTextField();
+        btDots = new javax.swing.JButton();
+        cbMale = new javax.swing.JCheckBox();
+        cbFemale = new javax.swing.JCheckBox();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tbEmployees = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jEditorPane1 = new javax.swing.JEditorPane();
+        epmanager = new javax.swing.JEditorPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(null);
@@ -56,9 +57,9 @@ public class EmployeeGUI extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(6, 0, 6, 48);
         plFilter.add(jLabel1, gridBagConstraints);
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        jComboBox1.setActionCommand("dept");
-        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+        cxDept.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        cxDept.setActionCommand("dept");
+        cxDept.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 onFilterUpdate(evt);
             }
@@ -70,11 +71,11 @@ public class EmployeeGUI extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(6, 0, 6, 0);
-        plFilter.add(jComboBox1, gridBagConstraints);
+        plFilter.add(cxDept, gridBagConstraints);
 
-        jCheckBox1.setText("Birthdate before:");
-        jCheckBox1.setActionCommand("activate_bd");
-        jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+        cbBirthDate.setText("Birthdate before:");
+        cbBirthDate.setActionCommand("activate_bd");
+        cbBirthDate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 onFilterUpdate(evt);
             }
@@ -85,11 +86,11 @@ public class EmployeeGUI extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(6, 0, 6, 48);
-        plFilter.add(jCheckBox1, gridBagConstraints);
+        plFilter.add(cbBirthDate, gridBagConstraints);
 
-        jTextField1.setText("Fr 01-01-2000");
-        jTextField1.setEnabled(false);
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        tfBirth.setText("Fr 01-01-2000");
+        tfBirth.setEnabled(false);
+        tfBirth.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 onFilterUpdate(evt);
             }
@@ -100,12 +101,12 @@ public class EmployeeGUI extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(6, 0, 6, 0);
-        plFilter.add(jTextField1, gridBagConstraints);
+        plFilter.add(tfBirth, gridBagConstraints);
 
-        jButton1.setText("...");
-        jButton1.setActionCommand("datepicker");
-        jButton1.setEnabled(false);
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        btDots.setText("...");
+        btDots.setActionCommand("datepicker");
+        btDots.setEnabled(false);
+        btDots.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 onFilterUpdate(evt);
             }
@@ -117,11 +118,11 @@ public class EmployeeGUI extends javax.swing.JFrame {
         gridBagConstraints.ipady = 9;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(6, 4, 6, 0);
-        plFilter.add(jButton1, gridBagConstraints);
+        plFilter.add(btDots, gridBagConstraints);
 
-        jCheckBox2.setText("Male");
-        jCheckBox2.setActionCommand("male");
-        jCheckBox2.addActionListener(new java.awt.event.ActionListener() {
+        cbMale.setText("Male");
+        cbMale.setActionCommand("male");
+        cbMale.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 onFilterUpdate(evt);
             }
@@ -132,11 +133,11 @@ public class EmployeeGUI extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(6, 0, 6, 48);
-        plFilter.add(jCheckBox2, gridBagConstraints);
+        plFilter.add(cbMale, gridBagConstraints);
 
-        jCheckBox3.setText("Female");
-        jCheckBox3.setActionCommand("female");
-        jCheckBox3.addActionListener(new java.awt.event.ActionListener() {
+        cbFemale.setText("Female");
+        cbFemale.setActionCommand("female");
+        cbFemale.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 onFilterUpdate(evt);
             }
@@ -147,11 +148,11 @@ public class EmployeeGUI extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(6, 0, 6, 0);
-        plFilter.add(jCheckBox3, gridBagConstraints);
+        plFilter.add(cbFemale, gridBagConstraints);
 
         getContentPane().add(plFilter, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 420, 240));
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tbEmployees.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -162,15 +163,15 @@ public class EmployeeGUI extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jTable1.setPreferredSize(null);
-        jScrollPane1.setViewportView(jTable1);
+        tbEmployees.setPreferredSize(null);
+        jScrollPane1.setViewportView(tbEmployees);
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 0, 480, 470));
 
         jScrollPane2.setBorder(javax.swing.BorderFactory.createTitledBorder("Management"));
 
-        jEditorPane1.setEnabled(false);
-        jScrollPane2.setViewportView(jEditorPane1);
+        epmanager.setEnabled(false);
+        jScrollPane2.setViewportView(epmanager);
 
         getContentPane().add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 240, 420, 230));
 
@@ -217,17 +218,17 @@ public class EmployeeGUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JCheckBox jCheckBox1;
-    private javax.swing.JCheckBox jCheckBox2;
-    private javax.swing.JCheckBox jCheckBox3;
-    private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JEditorPane jEditorPane1;
+    private javax.swing.JButton btDots;
+    private javax.swing.JCheckBox cbBirthDate;
+    private javax.swing.JCheckBox cbFemale;
+    private javax.swing.JCheckBox cbMale;
+    private javax.swing.JComboBox<String> cxDept;
+    private javax.swing.JEditorPane epmanager;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JPanel plFilter;
+    private javax.swing.JTable tbEmployees;
+    private javax.swing.JTextField tfBirth;
     // End of variables declaration//GEN-END:variables
 }

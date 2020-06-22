@@ -57,7 +57,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JComboBox" name="jComboBox1">
+        <Component class="javax.swing.JComboBox" name="cxDept">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
               <StringArray count="4">
@@ -81,7 +81,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JCheckBox" name="jCheckBox1">
+        <Component class="javax.swing.JCheckBox" name="cbBirthDate">
           <Properties>
             <Property name="text" type="java.lang.String" value="Birthdate before:"/>
             <Property name="actionCommand" type="java.lang.String" value="activate_bd"/>
@@ -95,7 +95,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JTextField" name="jTextField1">
+        <Component class="javax.swing.JTextField" name="tfBirth">
           <Properties>
             <Property name="text" type="java.lang.String" value="Fr 01-01-2000"/>
             <Property name="enabled" type="boolean" value="false"/>
@@ -109,7 +109,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JButton" name="jButton1">
+        <Component class="javax.swing.JButton" name="btDots">
           <Properties>
             <Property name="text" type="java.lang.String" value="..."/>
             <Property name="actionCommand" type="java.lang.String" value="datepicker"/>
@@ -124,7 +124,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JCheckBox" name="jCheckBox2">
+        <Component class="javax.swing.JCheckBox" name="cbMale">
           <Properties>
             <Property name="text" type="java.lang.String" value="Male"/>
             <Property name="actionCommand" type="java.lang.String" value="male"/>
@@ -138,7 +138,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="javax.swing.JCheckBox" name="jCheckBox3">
+        <Component class="javax.swing.JCheckBox" name="cbFemale">
           <Properties>
             <Property name="text" type="java.lang.String" value="Female"/>
             <Property name="actionCommand" type="java.lang.String" value="female"/>
@@ -166,7 +166,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="javax.swing.JTable" name="jTable1">
+        <Component class="javax.swing.JTable" name="tbEmployees">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
               <Table columnCount="4" rowCount="4">
@@ -202,7 +202,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="javax.swing.JEditorPane" name="jEditorPane1">
+        <Component class="javax.swing.JEditorPane" name="epmanager">
           <Properties>
             <Property name="enabled" type="boolean" value="false"/>
           </Properties>
