@@ -5,18 +5,41 @@
  */
 package ui;
 
+import beans.Department;
+import bl.EmployeeTableModel;
+import db.DB_Access;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.table.TableModel;
+
 /**
  *
  * @author gotped17
  */
 public class EmployeeGUI extends javax.swing.JFrame {
 
-    /**
-     * Creates new form EmployeeGUI
-     */
+    private DB_Access dba;
+    private EmployeeTableModel etm;
+
     public EmployeeGUI() {
-        initComponents();
-        
+        try {
+            dba = DB_Access.getInstance();
+            List<Department> depts = dba.getDepartments();
+            etm = new EmployeeTableModel(dba.getEmployeesFiltered(null, null, depts.get(0).getDeptName()));
+            initComponents();
+            
+            for (Department dept : depts) {
+                cbDept.addItem(dept.getDeptName());
+            }
+
+        } catch (SQLException ex) {
+            System.out.println("Error retrieving data from database");
+            ex.printStackTrace();
+        }
+
     }
 
     /**
@@ -31,7 +54,7 @@ public class EmployeeGUI extends javax.swing.JFrame {
 
         plFilter = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        cxDept = new javax.swing.JComboBox<>();
+        cbDept = new javax.swing.JComboBox<>();
         cbBirthDate = new javax.swing.JCheckBox();
         tfBirth = new javax.swing.JTextField();
         btDots = new javax.swing.JButton();
@@ -41,6 +64,8 @@ public class EmployeeGUI extends javax.swing.JFrame {
         tbEmployees = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
         epmanager = new javax.swing.JEditorPane();
+        btNext = new javax.swing.JButton();
+        btPrev = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(null);
@@ -57,11 +82,10 @@ public class EmployeeGUI extends javax.swing.JFrame {
         gridBagConstraints.insets = new java.awt.Insets(6, 0, 6, 48);
         plFilter.add(jLabel1, gridBagConstraints);
 
-        cxDept.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        cxDept.setActionCommand("dept");
-        cxDept.addActionListener(new java.awt.event.ActionListener() {
+        cbDept.setActionCommand("dept");
+        cbDept.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                onFilterUpdate(evt);
+                onDeptChange(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -71,13 +95,13 @@ public class EmployeeGUI extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         gridBagConstraints.insets = new java.awt.Insets(6, 0, 6, 0);
-        plFilter.add(cxDept, gridBagConstraints);
+        plFilter.add(cbDept, gridBagConstraints);
 
         cbBirthDate.setText("Birthdate before:");
         cbBirthDate.setActionCommand("activate_bd");
         cbBirthDate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                onFilterUpdate(evt);
+                onActivateDate(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -92,7 +116,7 @@ public class EmployeeGUI extends javax.swing.JFrame {
         tfBirth.setEnabled(false);
         tfBirth.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                onFilterUpdate(evt);
+                onDeptChange(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -108,7 +132,7 @@ public class EmployeeGUI extends javax.swing.JFrame {
         btDots.setEnabled(false);
         btDots.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                onFilterUpdate(evt);
+                onDeptChange(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -124,7 +148,7 @@ public class EmployeeGUI extends javax.swing.JFrame {
         cbMale.setActionCommand("male");
         cbMale.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                onFilterUpdate(evt);
+                onCheckGender(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -139,7 +163,7 @@ public class EmployeeGUI extends javax.swing.JFrame {
         cbFemale.setActionCommand("female");
         cbFemale.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                onFilterUpdate(evt);
+                onCheckGender(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -164,9 +188,10 @@ public class EmployeeGUI extends javax.swing.JFrame {
             }
         ));
         tbEmployees.setPreferredSize(null);
+        tbEmployees.setModel(etm);
         jScrollPane1.setViewportView(tbEmployees);
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 0, 480, 470));
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 0, 480, 440));
 
         jScrollPane2.setBorder(javax.swing.BorderFactory.createTitledBorder("Management"));
 
@@ -175,12 +200,65 @@ public class EmployeeGUI extends javax.swing.JFrame {
 
         getContentPane().add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 240, 420, 230));
 
+        btNext.setText(">");
+        btNext.setActionCommand("next");
+        btNext.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                onPageSwitch(evt);
+            }
+        });
+        getContentPane().add(btNext, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 440, -1, 30));
+
+        btPrev.setText("<");
+        btPrev.setActionCommand("prev");
+        btPrev.setEnabled(false);
+        btPrev.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                onPageSwitch(evt);
+            }
+        });
+        getContentPane().add(btPrev, new org.netbeans.lib.awtextra.AbsoluteConstraints(640, 440, -1, 30));
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void onFilterUpdate(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onFilterUpdate
-        
-    }//GEN-LAST:event_onFilterUpdate
+    private void onDeptChange(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onDeptChange
+        cbFemale.setSelected(false);
+        cbMale.setSelected(false);
+        try {
+            String deptName = cbDept.getSelectedItem().toString();
+            etm.changeContent(dba.getEmployeesFiltered(null, null, deptName));
+        } catch (SQLException ex) {
+            Logger.getLogger(EmployeeGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_onDeptChange
+
+    private void onPageSwitch(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onPageSwitch
+        String action = evt.getActionCommand();
+        try {
+            
+            if (action.equals("next")) {
+
+                btPrev.setEnabled(true);
+                dba.changeOffset(100);
+                etm.changeContent(dba.getEmployeesFiltered());
+
+            } else {
+                dba.changeOffset(-100);
+                etm.changeContent(dba.getEmployeesFiltered());
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(EmployeeGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_onPageSwitch
+
+    private void onActivateDate(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onActivateDate
+        tfBirth.setEditable(cbBirthDate.isSelected());
+    }//GEN-LAST:event_onActivateDate
+
+    private void onCheckGender(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onCheckGender
+        // TODO add your handling code here:
+    }//GEN-LAST:event_onCheckGender
 
     /**
      * @param args the command line arguments
@@ -219,10 +297,12 @@ public class EmployeeGUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btDots;
+    private javax.swing.JButton btNext;
+    private javax.swing.JButton btPrev;
     private javax.swing.JCheckBox cbBirthDate;
+    private javax.swing.JComboBox<String> cbDept;
     private javax.swing.JCheckBox cbFemale;
     private javax.swing.JCheckBox cbMale;
-    private javax.swing.JComboBox<String> cxDept;
     private javax.swing.JEditorPane epmanager;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;

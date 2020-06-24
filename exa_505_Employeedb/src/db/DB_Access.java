@@ -5,7 +5,9 @@
  */
 package db;
 
+import beans.Department;
 import beans.Employee;
+import beans.Gender;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,8 +28,12 @@ import java.util.logging.Logger;
 public class DB_Access {
     private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private static DB_Access dbInstance = null; 
+    private String oldDept = "";
+    private int offset = 0;
     private DB_Database db;
     private PreparedStatement getAllEmployees;
+    private PreparedStatement getAllDepts;
+    private String recentEmployeeQuery = "";
     public static DB_Access getInstance() {
         if (dbInstance == null) {
             dbInstance = new DB_Access();
@@ -58,47 +64,110 @@ public class DB_Access {
         while(results.next()){
             employees.add(new Employee(
                     results.getString("first_name"),
-                    results.getString("lastname"),
-                    results.getString("gender").charAt(0),
+                    results.getString("last_name"),
+                    results.getString("gender").toLowerCase().equals("M") ? Gender.M : Gender.F,
                     results.getDate("birth_date").toLocalDate(),
                     results.getDate("hire_date").toLocalDate()
             ));
         }
+        recentEmployeeQuery = "SELECT * FROM employees";
         return employees;
     }
     
-    public List<Employee> getEmployeesFiltered(char gender, LocalDate birthdate, String deptName) throws SQLException{
+    public List<Employee> getEmployeesFiltered(Gender gender, LocalDate birthdate, String deptName) throws SQLException{
         List<Employee> employees = new ArrayList<>();
-        String query = "SELECT e.* FROM employees e";
+        String query = "SELECT e.* FROM employees e INNER JOIN dept_emp de ON e.emp_no = de.emp_no INNER JOIN departments d ON de.dept_no = d.dept_no WHERE d.dept_name = ";
         if(deptName != null){
-            query += "INNER JOIN dept_emp de ON e.emp_no = de.emp_no " +
-                     "INNER JOIN departments d ON de.dept_no = d.dept_no "+
-                     "WHERE d.dept_name = " + deptName;
+            oldDept = deptName;
         }
-        if(true){
-            if(query.contains("WHERE")) /*-->*/ query += " AND ";
-            else /*-->*/ query += "WHERE ";
+        else{
+            deptName = oldDept;
+        }
+        query += "'"+deptName+"'";
+        if(gender != null){
+            query += " AND ";
             query += "e.gender = " + gender;
         }
         if(birthdate != null){
-            if(query.contains("WHERE")) /*-->*/ query += " AND ";
-            else /*-->*/ query += "WHERE ";
+            query += " AND ";
             java.sql.Date dateOfBirth = java.sql.Date.valueOf(birthdate);
             query += "birth_date = " + dateOfBirth;
         }
-        query += ";";
+        recentEmployeeQuery = query;
+        query += "\n LIMIT 100 OFFSET " + offset+";";
         Statement statement = db.getStatement();
+        ResultSet results = statement.executeQuery(query);
+        
+        while(results.next()){
+            employees.add(new Employee(
+                    results.getString("first_name"),
+                    results.getString("last_name"),
+                    results.getString("gender").toLowerCase().equals("M") ? Gender.M : Gender.F,
+                    results.getDate("birth_date").toLocalDate(),
+                    results.getDate("hire_date").toLocalDate()
+            ));
+        }
+        // System.out.println(query);
+        db.releaseStatement(statement);
+        
+        return employees;
+    }
+        //uses the last used sql query to take over the filters used the last time
+    public List<Employee> getEmployeesFiltered() throws SQLException{
+        List<Employee> employees = new ArrayList<>();
+        Statement statement = db.getStatement();
+        String query = recentEmployeeQuery + "\n LIMIT 100 OFFSET " + offset+";";
         ResultSet results = statement.executeQuery(query);
         while(results.next()){
             employees.add(new Employee(
                     results.getString("first_name"),
-                    results.getString("lastname"),
-                    results.getString("gender").charAt(0),
+                    results.getString("last_name"),
+                    results.getString("gender").toLowerCase().equals("M") ? Gender.M : Gender.F,
+                    results.getDate("birth_date").toLocalDate(),
+                    results.getDate("hire_date").toLocalDate()
+            ));
+        }
+        
+        db.releaseStatement(statement);
+        return employees;
+    }
+    //returns an sorted list of employees
+        //args: index 0 => column after which the data should be sorted
+        //      index 1 => Determining if data should be ascending or descending
+    public List<Employee> getSortedEmployees(String[] args) throws SQLException{
+        recentEmployeeQuery = recentEmployeeQuery.replace(";", "");
+        recentEmployeeQuery = String.format("%s ORDER BY %s %s", recentEmployeeQuery, args[0], args[1]);
+        String query = recentEmployeeQuery + "\n LIMIT 100 OFFSET " + offset+";";
+        Statement statement = db.getStatement();
+        ResultSet results = statement.executeQuery(recentEmployeeQuery);
+        List<Employee> employees = new ArrayList<>();
+        while(results.next()){
+            employees.add(new Employee(
+                    results.getString("first_name"),
+                    results.getString("last_name"),
+                    results.getString("gender").toLowerCase().equals("M") ? Gender.M : Gender.F,
                     results.getDate("birth_date").toLocalDate(),
                     results.getDate("hire_date").toLocalDate()
             ));
         }
         db.releaseStatement(statement);
         return employees;
+    }
+    public List<Department> getDepartments() throws SQLException{
+        if(getAllDepts == null){
+            getAllDepts = db.getConnection().prepareStatement("SELECT * FROM departments");
+        }
+        ResultSet results = getAllDepts.executeQuery();
+        List<Department> depts = new ArrayList<>();
+        while(results.next()){
+            depts.add(new Department(
+                results.getString("dept_no"),
+                results.getString("dept_name")));
+        }
+        return depts;
+    }
+    public void changeOffset(int value){
+        offset += value;
+        if(offset < 0) offset = 0;
     }
 }

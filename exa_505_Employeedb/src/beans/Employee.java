@@ -6,6 +6,7 @@
 package beans;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  *
@@ -13,13 +14,14 @@ import java.time.LocalDate;
  */
 public class Employee {
 
+    private static final DateTimeFormatter dtf= DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private String firstname;
     private String lastname;
-    private char gender;
+    private Gender gender;
     private LocalDate birthdate;
     private LocalDate hiredate;
 
-    public Employee(String firstname, String lastname, char gender, LocalDate birthdate, LocalDate hiredate) {
+    public Employee(String firstname, String lastname, Gender gender, LocalDate birthdate, LocalDate hiredate) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.gender = gender;
@@ -43,11 +45,11 @@ public class Employee {
         this.lastname = lastname;
     }
 
-    public char getGender() {
+    public Gender getGender() {
         return gender;
     }
 
-    public void setGender(char gender) {
+    public void setGender(Gender gender) {
         this.gender = gender;
     }
 
@@ -65,6 +67,15 @@ public class Employee {
 
     public void setHiredate(LocalDate hiredate) {
         this.hiredate = hiredate;
+    }
+    
+    public Object[] convertToTableData(){
+        Object[] array = new Object[4];
+        array[0] = String.format("%s, %s", lastname, firstname);
+        array[1] = gender.toString();
+        array[2] = birthdate.format(dtf);
+        array[3] = hiredate.format(dtf);
+        return array;
     }
     
 }
