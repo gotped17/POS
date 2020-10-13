@@ -10,10 +10,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.swing.table.AbstractTableModel;
 
-/**
- *
- * @author crether
- */
 public class EmployeeTableModel extends AbstractTableModel {
 
     private final String[] columns = {"Pers_Nr", "Name", "Vorname",
