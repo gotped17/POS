@@ -1,0 +1,15 @@
+body{
+    background-color: #dadada;
+}
+
+.formStyle {
+    background-color: white;
+    border: solid 2pt black;
+    border-radius: 45pt;
+}
+
+.studentCard {
+    background-color: yellowgreen;
+    border: solid 2pt black;
+    border-radius: 45pt;
+}
