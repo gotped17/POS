@@ -12,10 +12,10 @@ package at.htlkaindorf.beans;
 public class Pizza {
  
     private String name;
-    private String Preis;
+    private double Preis;
     private String imagePath;
 
-    public Pizza(String name, String Preis, String imageName) {
+    public Pizza(String name, double Preis, String imageName) {
         this.name = name;
         this.Preis = Preis;
         this.imagePath = imageName;
@@ -29,11 +29,11 @@ public class Pizza {
         this.name = name;
     }
 
-    public String getPreis() {
+    public double getPreis() {
         return Preis;
     }
 
-    public void setPreis(String Preis) {
+    public void setPreis(double Preis) {
         this.Preis = Preis;
     }
 

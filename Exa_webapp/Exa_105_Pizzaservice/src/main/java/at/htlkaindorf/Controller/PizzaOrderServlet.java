@@ -6,10 +6,18 @@
 package at.htlkaindorf.Controller;
 
 import at.htlkaindorf.beans.Pizza;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -34,12 +42,28 @@ public class PizzaOrderServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");        
+        response.setContentType("text/html;charset=UTF-8");
+        
+        request.setAttribute("pizzas", pizzas);
     }
 
+    
     @Override
     public void init() throws ServletException {
-        super.init(); //To change body of generated methods, choose Tools | Templates.
+        try {
+            super.init(); //To change body of generated methods, choose Tools | Templates.
+            String path = this.getServletContext().getRealPath("/src/pizzas.csv");
+            List<String> pizzaStrings = Files.lines(Paths.get(this.getServletContext().getRealPath("/src/pizzas.csv")))
+                    .skip(1)
+                    .map(String::new)
+                    .collect(Collectors.toList());
+            for (String pizzaString : pizzaStrings) {
+                String[] tokens = pizzaString.split(";");
+                pizzas.add(new Pizza(tokens[0], Double.parseDouble(tokens[1].replace(',', '.')), tokens[2]));
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(PizzaOrderServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
     }
     
@@ -58,6 +82,7 @@ public class PizzaOrderServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.getRequestDispatcher("PizzaOrder.jsp").forward(request, response);
         processRequest(request, response);
     }
 
