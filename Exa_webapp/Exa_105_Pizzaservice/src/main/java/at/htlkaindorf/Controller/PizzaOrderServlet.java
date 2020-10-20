@@ -14,7 +14,9 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -30,7 +32,9 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet(name = "PizzaOrderServlet", urlPatterns = {"/PizzaOrderServlet"})
 public class PizzaOrderServlet extends HttpServlet {
+
     private List<Pizza> pizzas = new ArrayList<>();
+
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -43,16 +47,14 @@ public class PizzaOrderServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        
         request.setAttribute("pizzas", pizzas);
+        request.getRequestDispatcher("PizzaOrder.jsp").forward(request, response);
     }
 
-    
     @Override
     public void init() throws ServletException {
         try {
             super.init(); //To change body of generated methods, choose Tools | Templates.
-            String path = this.getServletContext().getRealPath("/src/pizzas.csv");
             List<String> pizzaStrings = Files.lines(Paths.get(this.getServletContext().getRealPath("/src/pizzas.csv")))
                     .skip(1)
                     .map(String::new)
@@ -61,15 +63,13 @@ public class PizzaOrderServlet extends HttpServlet {
                 String[] tokens = pizzaString.split(";");
                 pizzas.add(new Pizza(tokens[0], Double.parseDouble(tokens[1].replace(',', '.')), tokens[2]));
             }
+
         } catch (IOException ex) {
             Logger.getLogger(PizzaOrderServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-    }
-    
-    
 
-    
+    }
+
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -82,7 +82,7 @@ public class PizzaOrderServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("PizzaOrder.jsp").forward(request, response);
+
         processRequest(request, response);
     }
 
@@ -97,7 +97,20 @@ public class PizzaOrderServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        Map<Pizza, Integer> orderedPizzas = new HashMap<>();
+        if (request.getParameter("back") != null) {
+            processRequest(request, response);
+        }
+
+        for (Pizza pizza : pizzas) {
+            int count = Integer.parseInt(request.getParameter(String.format("number_%s", pizza.getName())));
+            orderedPizzas.put(pizza, count);
+        }
+        String address = request.getParameter("address");
+        request.getSession().setAttribute("address", address);
+        request.getSession().setAttribute("order", orderedPizzas);
+        request.getRequestDispatcher("PizzaOrderSummary.jsp").forward(request, response);
+
     }
 
     /**

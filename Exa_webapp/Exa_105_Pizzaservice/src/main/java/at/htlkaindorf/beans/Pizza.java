@@ -13,12 +13,12 @@ public class Pizza {
  
     private String name;
     private double Preis;
-    private String imagePath;
+    private String base64;
 
     public Pizza(String name, double Preis, String imageName) {
         this.name = name;
         this.Preis = Preis;
-        this.imagePath = imageName;
+        this.base64 = imageName;
     }
 
     public String getName() {
@@ -37,12 +37,12 @@ public class Pizza {
         this.Preis = Preis;
     }
 
-    public String getImagePath() {
-        return imagePath;
+    public String getBase64() {
+        return base64;
     }
 
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
+    public void setBase64(String base64) {
+        this.base64 = base64;
     }
     
     
