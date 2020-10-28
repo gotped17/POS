@@ -85,6 +85,8 @@ public class PizzaOrderServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        request.setCharacterEncoding("UTF-8");
         try {
             for (Cookie c : request.getCookies()) {
                 if (c.getName().equals("cLang")) {
@@ -109,8 +111,8 @@ public class PizzaOrderServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-
+        response.setContentType("text/html;charset=UTF-8");
+        request.setCharacterEncoding("UTF-8");
         if (request.getParameter("languageSelect") != null) {
 
             Cookie cLang = new Cookie("cLang", request.getParameter("languageSelect"));
@@ -129,14 +131,16 @@ public class PizzaOrderServlet extends HttpServlet {
             processRequest(request, response);
         }
         if (request.getParameter("bestellen") != null) {
-            
+
             List<Order> orderedPizzas = new ArrayList<>();
             for (Pizza pizza : pizzas) {
                 String value = request.getParameter(String.format("number_%s", pizza.getName()));
                 int count = Integer.parseInt(value);
                 orderedPizzas.add(new Order(pizza, count));
             }
+
             String address = request.getParameter("address");
+            System.out.println(address);
             request.getSession().setAttribute("address", address);
             request.getSession().setAttribute("order", orderedPizzas);
             request.getRequestDispatcher("PizzaOrderSummary.jsp").forward(request, response);
