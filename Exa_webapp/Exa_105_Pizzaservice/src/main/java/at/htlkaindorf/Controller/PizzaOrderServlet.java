@@ -61,7 +61,7 @@ public class PizzaOrderServlet extends HttpServlet {
                     .collect(Collectors.toList());
             for (String pizzaString : pizzaStrings) {
                 String[] tokens = pizzaString.split(";");
-                pizzas.add(new Pizza(tokens[0], Double.parseDouble(tokens[1].replace(',', '.')), tokens[2]));
+                pizzas.add(new Pizza(tokens[0], Double.parseDouble(tokens[1].replace(',', '.')), tokens[2] + ";" + tokens[3]));
             }
 
         } catch (IOException ex) {
@@ -103,7 +103,10 @@ public class PizzaOrderServlet extends HttpServlet {
         }
 
         for (Pizza pizza : pizzas) {
-            int count = Integer.parseInt(request.getParameter(String.format("number_%s", pizza.getName())));
+            System.out.println(pizza.getName());
+            String value = request.getParameter(String.format("number_%s", pizza.getName()));
+            System.out.println(value);
+            int count = Integer.parseInt(value);
             orderedPizzas.put(pizza, count);
         }
         String address = request.getParameter("address");

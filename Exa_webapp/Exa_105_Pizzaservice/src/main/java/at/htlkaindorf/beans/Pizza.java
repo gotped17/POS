@@ -5,19 +5,23 @@
  */
 package at.htlkaindorf.beans;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Gottl
  */
-public class Pizza {
+public class Pizza implements Serializable{
  
     private String name;
-    private double Preis;
+    private double price;
     private String base64;
 
-    public Pizza(String name, double Preis, String imageName) {
+    public Pizza() {}
+    
+    public Pizza(String name, double price, String imageName) {
         this.name = name;
-        this.Preis = Preis;
+        this.price = price;
         this.base64 = imageName;
     }
 
@@ -29,12 +33,12 @@ public class Pizza {
         this.name = name;
     }
 
-    public double getPreis() {
-        return Preis;
+    public double getPrice() {
+        return price;
     }
 
-    public void setPreis(double Preis) {
-        this.Preis = Preis;
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     public String getBase64() {

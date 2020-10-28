@@ -3,7 +3,7 @@
     Created on : 07.10.2020, 11:32:39
     Author     : Gottl
 --%>
-
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page import="java.util.List"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="at.htlkaindorf.beans.Pizza"%>
@@ -13,6 +13,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <link href="style.css" rel="stylesheet">
+        <script src="validation.js" type="text/javascript"></script>
         <title>Menü</title>
     </head>
     <body>
@@ -27,36 +28,30 @@
                 </select>
             </div>
         </div>
-        <form action="PizzaOrderServlet" method="POST">
+        <form  method="POST" onsubmit="return validate()">
             <div class="pizzaList">
-                <table>
-                    <%
-                        List<Pizza> pizzas = (ArrayList) request.getAttribute("pizzas");
-                        if (pizzas != null) {
-                            for (Pizza pizza : pizzas) {
-                                out.write("<tr>");
-                                out.write("<td>" + pizza.getName() + "</td>");
-                                out.write(String.format("<td><img src=\"%s\"></td>", pizza.getBase64()));
-                                out.write(String.format("<td>Preis: %5.2f €</td>", pizza.getPreis()));
-                                out.write(String.format("<td><select name=\"number_%s\">", pizza.getName()));
-                                for (int i = 0; i <= 10; i++) {
-                                    out.write(String.format("<option>%d</option>", i));
-                                }
-
-                                out.write("</td></tr>");
-
-                            }
-                        }
-                    %>
+                <table class="menuTable">
+                    <c:forEach var="pizza" items="${pizzas}">
+                        <tr>
+                            <td value="${pizza.base64}"><img src="${pizza.base64}" width="100px" height="100px"></td>
+                            <td value="${pizza.name}">${pizza.name}</td>
+                            <td value="${pizza.price}">Preis: ${pizza.price} €</td>
+                            <td>
+                                <select name="number_${pizza.name}" id="${pizza.name}">
+                                    <c:forEach var="i" begin="0" end="10">
+                                        <option  value="${i}">${i}</option>
+                                    </c:forEach>
+                                </select>
+                            </td>
+                        </tr>
+                    </c:forEach>
                 </table>
-
             </div>
             <div>
                 <label>Lieferadresse:</label>
-                <input type="text" name="address">
-                <input type="submit" name="bestellen" value="Bestellen"></div>
-
+                <input type="text" name="address" id="address" required="true">
+                <input type="submit" name="bestellen" value="Bestellen">
+            </div>
         </form>
-
     </body>
 </html>

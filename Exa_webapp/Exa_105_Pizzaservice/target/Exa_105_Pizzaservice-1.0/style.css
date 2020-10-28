@@ -2,14 +2,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Raleway&display=swap');
 
 body {
-    font-family: 'Raleway', sans-serif;
-    
+    font-family: 'Raleway', sans-serif;   
 }
-table {
-    width: 100%;
+.menuTable {
+    width: 40%;
 }
-td {
-    padding: 10px;
+.orderTable {
+    width:20%;
+}
+.orderHeader {
+    border-right-color: black;
+    border-right-width: 1px;
+    border-right-style: solid;
+    border-bottom: black 2px solid;
+}
+.sumCell {
+    font-weight: bold;
+    border-bottom: black 3px solid;
+}
+.orderCell{
+    border-right-color: black;
+    border-right-width: 1px;
+    border-right-style: solid;
+    border-bottom: black 1px solid;
 }
 div{
     display:flex;
