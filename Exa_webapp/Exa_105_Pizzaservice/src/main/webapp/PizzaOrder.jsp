@@ -4,6 +4,7 @@
     Author     : Gottl
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
 <%@page import="java.util.List"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="at.htlkaindorf.beans.Pizza"%>
@@ -31,9 +32,9 @@
                     <input type="hidden" name="page" value="order">
                     <select onchange="submit()" name="languageSelect">
                         <c:choose>
-                            <c:when test="${cookie.cLang!=null}">
-                                <option <c:if test="${cookie.cLang.value=='DE'}">selected</c:if> value="DE">Deutsch</option>
-                                <option <c:if test="${cookie.cLang.value=='EN'}">selected</c:if> value="EN">English</option>
+                            <c:when test="${sessionScope.lang!=null}">
+                                <option <c:if test="${sessionScope.lang=='DE' || sessionScope.lang==''}">selected</c:if> value="DE">Deutsch</option>
+                                <option <c:if test="${sessionScope.lang=='EN'}">selected</c:if> value="EN">English</option>
                             </c:when>
                             <c:otherwise>
                                 <option value="DE">Deutsch</option>
@@ -51,7 +52,14 @@
                         <tr>
                             <td value="${pizza.base64}"><img src="${pizza.base64}" width="100px" height="100px"></td>
                             <td value="${pizza.name}">${pizza.name}</td>
-                            <td value="${pizza.price}">Preis: ${pizza.price} €</td>
+                            <td value="${pizza.price}">
+                                <c:choose>
+                                    <c:when test="${sessionScope.lang=='EN'}">Price: </c:when>
+                                    <c:otherwise>Preis: </c:otherwise>
+                                </c:choose>
+                                <fmt:setLocale value = "de_DE"/>
+                                <fmt:formatNumber value = "${pizza.price}" type = "currency"/>
+                            </td>
                             <td>
                                 <select name="number_${pizza.name}" id="${pizza.name}">
                                     <c:forEach var="i" begin="0" end="10">
@@ -69,13 +77,13 @@
                         <c:when test="${sessionScope.lang=='EN'}">Delievery address: </c:when>
                         <c:otherwise>Lieferadresse: </c:otherwise>
                     </c:choose>
-                    </label>
+                </label>
                 <input type="text" name="address" id="address" required="true">
                 <input type="submit" name="bestellen" 
                        <c:choose>
-                        <c:when test="${sessionScope.lang=='EN'}">value="Order"</c:when>
-                        <c:otherwise>value="Bestellen"</c:otherwise>
-                    </c:choose>>
+                           <c:when test="${sessionScope.lang=='EN'}">value="Order"</c:when>
+                           <c:otherwise>value="Bestellen"</c:otherwise>
+                       </c:choose>>
             </div>
         </form>
     </body>

@@ -3,7 +3,9 @@
     Created on : 07.10.2020, 11:32:48
     Author     : Gottl
 --%>
+<%@page import="at.htlkaindorf.beans.Order"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
 <%@page import="java.util.List"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.HashMap"%>
@@ -32,9 +34,9 @@
                     <input type="hidden" name="page" value="summary">
                     <select onchange="submit()" name="languageSelect">
                         <c:choose>
-                            <c:when test="${cookie.cLang!=null}">
-                                <option <c:if test="${cookie.cLang.value=='DE'}">selected</c:if> value="DE">Deutsch</option>
-                                <option <c:if test="${cookie.cLang.value=='EN'}">selected</c:if> value="EN">English</option>
+                            <c:when test="${sessionScope.lang!=null}">
+                                <option <c:if test="${sessionScope.lang=='DE' || sessionScope.lang==''}">selected</c:if> value="DE">Deutsch</option>
+                                <option <c:if test="${sessionScope.lang=='EN'}">selected</c:if> value="EN">English</option>
                             </c:when>
                             <c:otherwise>
                                 <option value="DE">Deutsch</option>
@@ -69,36 +71,37 @@
                         </c:choose>
                     </th>
                 </tr>
-                <%
-                    Map<Pizza, Integer> order = (HashMap) session.getAttribute("order");
-                    if (order != null) {
-                        double sum = 0;
-                        for (Pizza p : order.keySet()) {
-                            if (order.get(p) > 0) {
-                                out.write("<tr>");
-                                out.write(String.format("<td class=\"orderCell\">%s</td>", p.getName()));
-                                out.write(String.format("<td class=\"orderCell\">%4.2f €</td>", p.getPrice()));
-                                out.write(String.format("<td class=\"orderCell\">%d</td>", order.get(p)));
-                                out.write(String.format("<td class=\"orderCell\">%.2f €</td>", p.getPrice() * order.get(p)));
-                                out.write("</tr>");
-                                sum += p.getPrice() * order.get(p);
-                            }
-                        }
-                        out.write("<tr>");
-                        out.write("<td ></td>");
-                        out.write("<td></td>");
-                        if (session.getAttribute("lang").equals("EN")) {
-                            out.write("<td class=\"sumCell\">Sum:</td>");
-                        } else {
-                            out.write("<td class=\"sumCell\">Summe:</td>");
-                        }
-                        out.write(String.format("<td class=\"sumCell\">%.2f €</td", sum));
-                        out.write("</tr>");
-                        out.write("</table>");
+                
+                <c:set var="sum" value="${0}"/>
+                <c:forEach var="orderedPizza" items="${sessionScope.order}">
+                    <c:if test="${orderedPizza.count > 0}">
 
-                    }
-                %>
+                        <tr>
+                            <td class="orderCell" value="${orderedPizza.pizza.name}">${orderedPizza.pizza.name}</td>
 
+                            <td class="orderCell" value="${orderedPizza.pizza.price}">
+                                <fmt:setLocale value = "de_DE"/>
+                                <fmt:formatNumber value = "${orderedPizza.pizza.price}" type = "currency"/></td>
+                            <td class="orderCell" value="${orderedPizza.count}">${orderedPizza.count}</td>
+                            <td class="orderCell" value="${orderedPizza.pizza.price*orderedPizza.count}">
+                                <fmt:setLocale value = "de_DE"/>
+                                <fmt:formatNumber value = "${orderedPizza.pizza.price*orderedPizza.count}" type = "currency"/>
+                            </td>
+                        </tr>
+                        <c:set var="sum" value="${sum + orderedPizza.pizza.price*orderedPizza.count}"/>
+                    </c:if>
+                </c:forEach>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td class="sumCell"><c:choose>
+                            <c:when test="${sessionScope.lang=='EN'}">Sum: </c:when>
+                            <c:otherwise>Summe: </c:otherwise>
+                        </c:choose></td>
+                    <td class="sumCell" value="${sum}">
+                        <fmt:setLocale value = "de_DE"/>
+                        <fmt:formatNumber value = "${sum}" type = "currency"/></td>
+                </tr>
             </table>
         </div>
         <div style="padding:25px 0px 10px 0px">

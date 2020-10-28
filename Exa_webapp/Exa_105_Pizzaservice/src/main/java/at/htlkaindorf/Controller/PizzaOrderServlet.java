@@ -5,6 +5,7 @@
  */
 package at.htlkaindorf.Controller;
 
+import at.htlkaindorf.beans.Order;
 import at.htlkaindorf.beans.Pizza;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -84,14 +85,14 @@ public class PizzaOrderServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        boolean langSet = false;
-        for(Cookie c : request.getCookies()){
-            if(c.getName().equals("cLang")){
-                request.getSession().setAttribute("lang", c.getValue());
-                langSet = true;
+        try {
+            for (Cookie c : request.getCookies()) {
+                if (c.getName().equals("cLang")) {
+                    request.getSession().setAttribute("lang", c.getValue());
+                }
             }
-        }
-        if(!langSet){
+
+        } catch (NullPointerException ex) {
             request.getSession().setAttribute("lang", "");
         }
         processRequest(request, response);
@@ -108,21 +109,19 @@ public class PizzaOrderServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        Map<Pizza, Integer> orderedPizzas = new HashMap<>();
         
+
         if (request.getParameter("languageSelect") != null) {
-        
+
             Cookie cLang = new Cookie("cLang", request.getParameter("languageSelect"));
             cLang.setMaxAge(30 * 24 * 3600);
             response.addCookie(cLang);
             request.getSession().setAttribute("lang", cLang.getValue());
-               
-            System.out.println(cLang.getValue());
-                //Determines which page called the servlet
-            if(request.getParameter("page").equals("summary")){
+
+            //Determines which page called the servlet
+            if (request.getParameter("page").equals("summary")) {
                 request.getRequestDispatcher("PizzaOrderSummary.jsp").forward(request, response);
-            }
-            else{
+            } else {
                 request.getRequestDispatcher("PizzaOrder.jsp").forward(request, response);
             }
         }
@@ -130,12 +129,12 @@ public class PizzaOrderServlet extends HttpServlet {
             processRequest(request, response);
         }
         if (request.getParameter("bestellen") != null) {
+            
+            List<Order> orderedPizzas = new ArrayList<>();
             for (Pizza pizza : pizzas) {
-                System.out.println(pizza.getName());
                 String value = request.getParameter(String.format("number_%s", pizza.getName()));
-                System.out.println(value);
                 int count = Integer.parseInt(value);
-                orderedPizzas.put(pizza, count);
+                orderedPizzas.add(new Order(pizza, count));
             }
             String address = request.getParameter("address");
             request.getSession().setAttribute("address", address);
