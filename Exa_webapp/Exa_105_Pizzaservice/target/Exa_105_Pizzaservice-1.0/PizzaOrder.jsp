@@ -21,17 +21,33 @@
             <img src="src/logo.jpg" class="logo">
             <h1 class="title">Pizzeria di Metro</h1>
             <div class="languageSelection">
-                <label>Language</label>
-                <select>
-                    <option>Deutsch</option>
-                    <option>English</option>
-                </select>
+                <label>
+                    <c:choose>
+                        <c:when test="${sessionScope.lang=='EN'}">Language: </c:when>
+                        <c:otherwise>Sprache: </c:otherwise>
+                    </c:choose>
+                </label>
+                <form action="PizzaOrderServlet" method="POST" name="languageForm">
+                    <input type="hidden" name="page" value="order">
+                    <select onchange="submit()" name="languageSelect">
+                        <c:choose>
+                            <c:when test="${cookie.cLang!=null}">
+                                <option <c:if test="${cookie.cLang.value=='DE'}">selected</c:if> value="DE">Deutsch</option>
+                                <option <c:if test="${cookie.cLang.value=='EN'}">selected</c:if> value="EN">English</option>
+                            </c:when>
+                            <c:otherwise>
+                                <option value="DE">Deutsch</option>
+                                <option value="EN">English</option>
+                            </c:otherwise>
+                        </c:choose>
+                    </select>
+                </form>
             </div>
         </div>
-        <form  method="POST" onsubmit="return validate()">
+        <form  method="POST" onsubmit="return validate()" name="orderForm">
             <div class="pizzaList">
                 <table class="menuTable">
-                    <c:forEach var="pizza" items="${pizzas}">
+                    <c:forEach var="pizza" items="${sessionScope.pizzas}">
                         <tr>
                             <td value="${pizza.base64}"><img src="${pizza.base64}" width="100px" height="100px"></td>
                             <td value="${pizza.name}">${pizza.name}</td>
@@ -48,9 +64,18 @@
                 </table>
             </div>
             <div>
-                <label>Lieferadresse:</label>
+                <label>
+                    <c:choose>
+                        <c:when test="${sessionScope.lang=='EN'}">Delievery address: </c:when>
+                        <c:otherwise>Lieferadresse: </c:otherwise>
+                    </c:choose>
+                    </label>
                 <input type="text" name="address" id="address" required="true">
-                <input type="submit" name="bestellen" value="Bestellen">
+                <input type="submit" name="bestellen" 
+                       <c:choose>
+                        <c:when test="${sessionScope.lang=='EN'}">value="Order"</c:when>
+                        <c:otherwise>value="Bestellen"</c:otherwise>
+                    </c:choose>>
             </div>
         </form>
     </body>

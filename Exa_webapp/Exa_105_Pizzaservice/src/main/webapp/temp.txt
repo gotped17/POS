@@ -1,0 +1,11 @@
+<!--
+                <c:forEach var="orderedPizza" items="${sessionScope.order}">
+                    <tr>
+                        <td class="orderCell" value="${orderedPizza.key}">${orderedPizza.key.name}</td>
+                        <td class="orderCell" value="${orderedPizza.key}">${orderedPizza.price} €</td>
+                        <td class="orderCell" value="${sessionScope.order[orderedPizza.key]}">${sessionScope.order[orderedPizza.key]}</td>
+                        <td class="orderCell" value="${orderedPizza.key.price*order[orderedPizza.key]}">${orderedPizza.key.price*sessionScope.order[orderedPizza.key]} €</td>
+                    </tr>
+                    
+                </c:forEach>
+                -->
