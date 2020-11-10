@@ -20,3 +20,8 @@ div{
 .dataColumn{
         
 }
+
+.error {
+    color: red;
+    font-weight: bold;
+}

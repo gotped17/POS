@@ -49,6 +49,7 @@
                         <td>
                             <input type="text" id="Fach" name="Fach">
                         </td>
+                        <td><p class="error" id="fachError"></p></td>
                     </tr>
                     <tr>
                         <td>
@@ -57,10 +58,11 @@
                         <td>
                             <input type="text" id="Lehrer" name="Lehrer">
                         </td>
+                        <td><p class="error" id="lehrerError"></p></td>
                     </tr>
                     <tr>
                         <td>
-                            <input type="submit">
+                            <input type="submit" value="Übernehmen">
                         </td>
                         <td></td>
                     </tr>
@@ -71,8 +73,22 @@
 
                 </table>
             </form>
+        </div>
 
-
+        <div class="timetable">
+            <table>
+                <thead>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </thead>
+                <c:forEach var="stunde" items="timetable">
+                    
+                </c:forEach>
+            </table>
         </div>
     </body>
 </html>

@@ -3,15 +3,15 @@ function validate(){
     if(length(lehrer) === 2){
         return true;
     }else if (!lehrer) {
-        alert("Lehrer eingeben");
+        document.getElementById("lehrerError").innerHTML = "Bitte Lehrerkürzel eingeben";
     }
     else{
-        alert("Bitte Lehrerkürzel eingeben");
+        document.getElementById("lehrerError").innerHTML = "Bitte Lehrerkürzel eingeben";
         return false;
     }
     var fach = document.getElementById("Fach");
     if(!fach){
-        alert("Bitte Fach eingeben");
+        document.getElementById("fachError").innerHTML = "Bitte Fach eingeben";
         return false;
     }else{
         return true;
