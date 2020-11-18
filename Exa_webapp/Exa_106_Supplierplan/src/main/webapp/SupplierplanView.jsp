@@ -6,6 +6,7 @@
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="at.htlkaindorf.beans.Stunde"%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -17,25 +18,27 @@
     <body>
         <header class="headline">
             <h1>Supplierplan</h1>
-            <h2 value="${klasse}">${klasse}</h2>
+            <h2>${klasse}</h2>
         </header>
-        <div class="supplierForm">
-            <form action="SupplierplanController" method="POST" onsubmit="return validate()">
-                <table border="1">
+        <div>
+            <form action="SupplierplanController" method="POST" onsubmit="return validate();" name="change">
+                <table class="supplierForm">
 
                     <tr>
                         <td><label>Tag:</label></td>
                         <td>
-                            <select name="Tagauswahl">
-                                <c:forEach var="tag" items="${tage}">
-                                    <option value="${tag}">${tag}</option>
-                                </c:forEach>
+                            <select name="tagauswahl">
+                                <option>Montag</option>
+                                <option>Dienstag</option>
+                                <option>Mittwoch</option>
+                                <option>Donnerstag</option>
+                                <option>Freitag</option>
                             </select>
                         </td>
                     </tr>
                     <tr>
                         <td><label>Stunde:</label></td>
-                        <td><select name="Stunde">
+                        <td><select name="stunde">
                                 <c:forEach var="i" begin="1" end="10">
                                     <option value="${i}">${i}</option>
                                 </c:forEach>
@@ -47,7 +50,7 @@
                             <label>Fach:</label>
                         </td>
                         <td>
-                            <input type="text" id="Fach" name="Fach">
+                            <input type="text" id="Fach" name="fach">
                         </td>
                         <td><p class="error" id="fachError"></p></td>
                     </tr>
@@ -56,7 +59,7 @@
                             <label>Lehrer:</label>
                         </td>
                         <td>
-                            <input type="text" id="Lehrer" name="Lehrer">
+                            <input type="text" id="Lehrer" name="lehrer">
                         </td>
                         <td><p class="error" id="lehrerError"></p></td>
                     </tr>
@@ -75,19 +78,32 @@
             </form>
         </div>
 
-        <div class="timetable">
-            <table>
+        <div>
+            <table class="stundenplan">
                 <thead>
                     <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
+                    <c:forEach items="${tage}" var="tag">
+                    <th value="${tag}">${tag}</th>
+                    </c:forEach>
                 </thead>
-                <c:forEach var="stunde" items="timetable">
-                    
-                </c:forEach>
+                <tbody>
+                    <c:forEach begin="1" end="10" var="i">
+                        <tr>
+                            <td>${i}</td>
+                            <c:forEach items="${tage}" var="tag">
+                                
+                                <c:set var="stunde" value="${supplierplan.getStunde(tag, i)}" />
+                                <td class="${stunde.isSuppliert() ? 'fachSuppliert' : ''}">
+                                    <div class="stundenItem">
+                                        <b>${stunde.fach}</b>
+                                        <p>${stunde.getLehrerString()}</p>
+                                    </div>
+                                    
+                                </td>
+                            </c:forEach>
+                        </tr>
+                    </c:forEach>
+                </tbody>
             </table>
         </div>
     </body>

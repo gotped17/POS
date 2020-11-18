@@ -1,19 +1,20 @@
-function validate(){
-    var lehrer = document.getElementById("Lehrer");
-    if(length(lehrer) === 2){
-        return true;
-    }else if (!lehrer) {
-        document.getElementById("lehrerError").innerHTML = "Bitte Lehrerkürzel eingeben";
-    }
-    else{
-        document.getElementById("lehrerError").innerHTML = "Bitte Lehrerkürzel eingeben";
-        return false;
-    }
-    var fach = document.getElementById("Fach");
-    if(!fach){
-        document.getElementById("fachError").innerHTML = "Bitte Fach eingeben";
-        return false;
-    }else{
-        return true;
-    }
+function validate() {
+	var fail = false;
+	const facherror = document.getElementById("fachError");
+	if (!document.change.fach.value.trim()) {
+		facherror.textContent = "Fach eingeben!";
+		fail = true;
+	} else if (facherror.textContent.trim().length > 0) {
+		facherror.textContent = "";
+	}
+
+	const lehrererror = document.getElementById("lehrerError");
+	if (!document.change.lehrer.value.trim()) {
+		lehrererror.textContent = "Lehrer eingeben!";
+		fail = true;
+                
+	} else if (lehrererror.textContent.trim().length > 0) {
+		lehrererror.textContent = "";
+	}
+	return !fail;
 }

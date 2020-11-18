@@ -5,25 +5,22 @@
  */
 package at.htlkaindorf.Controller;
 
+import at.htlkaindorf.BL.Supplierplan;
 import at.htlkaindorf.beans.Stunde;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.Path;
 
 /**
  *
@@ -31,7 +28,9 @@ import javax.ws.rs.Path;
  */
 @WebServlet(name = "SupplierplanController", urlPatterns = {"/SupplierplanController"})
 public class SupplierplanController extends HttpServlet {
-    private String klasse;
+
+    private Supplierplan supplierplan;
+    private List<String> tageKurz = new ArrayList<>();
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -43,42 +42,28 @@ public class SupplierplanController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        
+        request.getRequestDispatcher("SupplierplanView.jsp").forward(request, response);
+
     }
 
     @Override
-    public void init() throws ServletException {
-        try {
-            super.init();
-            List<Stunde> timetableRaw = new ArrayList<>();
-            klasse = Files.lines(Paths.get(this.getServletContext().getRealPath("/src/stundenplan.csv"))).limit(1).toString();
-            timetableRaw = Files.lines(Paths.get(this.getServletContext().getRealPath("/src/stundenplan.csv")))
-                    .skip(1)
-                    .map(Stunde::new)
-                    .collect(Collectors.toList());
-            Map<Integer, List<Stunde>> timetable = new HashMap<>();
-            int dayCount = 1;
-            int lessonCount = 1;
-            List<Stunde> lessonStunde = new ArrayList<>();
-            for (Stunde stunde : timetableRaw) {
-                lessonStunde.add(stunde);
-                dayCount++;
-                if(dayCount == 5){
-                    dayCount = 1;
-                    timetable.put(lessonCount, lessonStunde);
-                    lessonCount++;
-                    lessonStunde.clear();
-                }
-            }
-            
-                
-            } catch (IOException ex) {
-            Logger.getLogger(SupplierplanController.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        Path path = Paths.get(this.getServletContext().getRealPath("/src/stundenplan.csv"));
+        tageKurz.add("Mo");
+        tageKurz.add("Di");
+        tageKurz.add("Mi");
+        tageKurz.add("Do");
+        tageKurz.add("Fr");
+        
+        supplierplan = new Supplierplan(path);
+        // System.out.println(supplierplan.getStundenplan().size());
+        config.getServletContext().setAttribute("klasse", supplierplan.getKlasse());
+        config.getServletContext().setAttribute("supplierplan", supplierplan);
+        config.getServletContext().setAttribute("tage", tageKurz);
+        
     }
 
-    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -105,6 +90,18 @@ public class SupplierplanController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
+        String tag = request.getParameter("tagauswahl");
+        int stunde = Integer.parseInt(request.getParameter("stunde"));
+        String fach = request.getParameter("fach");
+        String lehrerString = request.getParameter("lehrer");
+        
+        List<String> lehrer = new ArrayList<>();
+        String[] lehrerFeld = lehrerString.split(",");
+        for (String l : lehrerFeld) {
+            lehrer.add(l);
+        }
+        supplierplan.addSupplierung(tag, stunde, fach, lehrer);
         processRequest(request, response);
     }
 

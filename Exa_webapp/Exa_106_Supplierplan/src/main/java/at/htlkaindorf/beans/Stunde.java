@@ -24,20 +24,29 @@ public class Stunde {
     }
 
     public Stunde(String rawLesson) {
-        String[] tokens = rawLesson.split(";");
-        this.fach = tokens[0];
-        String[] lehrer = tokens.length > 2 ? new String[tokens.length - 1] : tokens[1].split(",");
-        if (tokens.length > 2) {
-            for (int i = 1; i < tokens.length; i++) {
-                lehrer[i - 1] = tokens[i];
+        if (!rawLesson.equals("missing")) {
+            String[] tokens = rawLesson.split(";");
+            this.fach = tokens[0];
+            String[] lehrer = tokens.length > 2 ? new String[tokens.length - 1] : tokens[1].split(",");
+            if (tokens.length > 2) {
+                for (int i = 1; i < tokens.length; i++) {
+                    lehrer[i - 1] = tokens[i];
+                }
             }
+            this.lehrer.addAll(Arrays.asList(lehrer));
+            this.suppliert = false;
         }
-        this.lehrer.addAll(Arrays.asList(lehrer));
-        this.suppliert = false;
+        else{
+            fach="NULL";
+            lehrer= List.of("NULL");
+            suppliert = false;
+        }
+
     }
 
-    public Stunde(String fach, boolean suppliert) {
+    public Stunde(String fach, List<String> lehrer, boolean suppliert) {
         this.fach = fach;
+        this.lehrer = lehrer;
         this.suppliert = suppliert;
     }
 
@@ -65,4 +74,16 @@ public class Stunde {
         this.suppliert = suppliert;
     }
 
+    @Override
+    public String toString() {
+        return "Stunde{" + "fach=" + fach + ", lehrer=" + lehrer.toString() + ", suppliert=" + suppliert + '}';
+    }
+
+    public String getLehrerString() {
+        String l = "";
+        for (String lehrer : lehrer) {
+            l += lehrer += " ";
+        }
+        return l;
+    }
 }

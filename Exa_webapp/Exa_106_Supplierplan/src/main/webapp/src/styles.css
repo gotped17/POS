@@ -11,17 +11,50 @@ div{
 }
 
 .supplierForm{
-    
+    background-color: #ffff55;
+    margin: 5px;
+    padding: 2px;
+    border-radius: 10px;
 }
 
-.labelColumn{
-    
+.headerCell{
+    background-color: #dadada;
 }
-.dataColumn{
-        
+.fachSuppliert{
+    color: red !important;
+    background-color: #ffff55 !important;
 }
 
+.stundenplan{
+    width: 100%;
+    border: solid black 1px;
+    border-collapse: collapse;
+}
+.stundenplan td {
+	background-color: white;
+	color: black;
+	padding: 4px;
+	text-align: center;
+}
+.stundenplan tbody tr td:first-child {
+	background-color: #dadada;
+	font-weight: bold;
+        font-size: 14pt;
+	text-align: center;
+	padding: 0;
+}
 .error {
-    color: red;
+    color: red !important;
     font-weight: bold;
+}
+.stundenItem{
+    text-align: left;
+}
+thead th {
+    padding: 4px 0;
+}
+thead {
+    background-color: #dadada;
+    font-weight: bold;
+    font-size: 14pt;
 }
