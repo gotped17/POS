@@ -1,0 +1,10 @@
+at\htlkaindorf\bl\ContactListModel.class
+at\htlkaindorf\exa_107_contactsapp\resources\JavaEE8Resource.class
+at\htlkaindorf\pojos\Contact.class
+at\htlkaindorf\Controller\ContactController.class
+at\htlkaindorf\exa_107_contactsapp\JAXRSConfiguration.class
+at\htlkaindorf\json\LocalDateDeserializer.class
+at\htlkaindorf\json\CompanyDeserializer.class
+at\htlkaindorf\json\JSON_access.class
+at\htlkaindorf\pojos\Company.class
+at\htlkaindorf\json\LocalDateSerializer.class

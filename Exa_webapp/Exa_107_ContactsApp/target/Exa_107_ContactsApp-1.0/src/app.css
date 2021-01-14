@@ -1,0 +1,15 @@
+.tableHead {
+    background-color: #dadada;
+    font-weight: bold;
+}
+.tableRow{
+}
+.Odd{
+    background-color: blanchedalmond !important;
+}
+.buttonBlock {
+    display: inline;
+}
+.inlineContent{
+    display: inline;
+}
