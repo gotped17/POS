@@ -38,6 +38,7 @@ public class StartupWindow extends javax.swing.JFrame {
         } catch (SAXException ex) {
             ex.printStackTrace();
         }
+        xml.initWindow(this, this.getTitle());
     }
 
     /**

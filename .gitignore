@@ -21,3 +21,9 @@
 *.zip
 /Exa_webapp/Exa_106_Supplierplan/target/
 /Exa_webapp/Exa_108_omdbApp/target/
+/Exa_webapp/Exa_JAXP_Intro/target/
+/Exa_webapp/Exa_204_OWMApp/target/
+/Exa_webapp/Exa_204_WeatherApp/target/
+/Exa_webapp/Exa_FeedReader/target/
+/Exa_webapp/Exa_RssReader/target/
+/Exa_webapp/Exa_205_RssFeedReader/target/

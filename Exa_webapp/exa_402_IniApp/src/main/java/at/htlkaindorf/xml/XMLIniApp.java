@@ -105,7 +105,7 @@ public class XMLIniApp {
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 
         PrintWriter writer = new PrintWriter(path.toFile());
-        writer.print("");
+        //writer.print("");
         writer.close();
 
         Result result = new StreamResult(path.toFile());
